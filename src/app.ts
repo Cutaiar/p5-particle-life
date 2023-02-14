@@ -21,6 +21,17 @@ var sketch = (p: P5) => {
   p.draw = () => {
     p.background(0);
 
+    // Apply forces
+    particles.forEach((p) => {
+      particles.forEach((ip) => {
+        // skip self
+        if (p === ip) {
+          return;
+        }
+        force(p, ip);
+      });
+    });
+
     updateArrays([particles], "tick");
     updateArrays([particles], "draw");
   };
@@ -32,6 +43,34 @@ const updateArrays = (array: any[][], func: string) => {
       sa[func]();
     });
   });
+};
+
+//      | red | blue
+// -----------------
+// red  |  .    .
+// blue |  .    .
+//
+// negative is attract, positive is repulse
+// Convention: "rows force on col"
+const attMatrix = [
+  [-0.01, 0.0],
+  [0.0, -0.01],
+];
+
+const falloff = 50;
+
+// applies force of p1 on p2 (not p2 to p1)
+const force = (p1: Particle, p2: Particle) => {
+  const forceValue = attMatrix[p1.color.index][p2.color.index]; // p1s force on p2
+
+  const delta = P5.Vector.sub(p2.position, p1.position);
+  const dir = delta.normalize();
+  const distance = delta.mag();
+
+  // apply force if particles are close enough
+  if (distance < falloff) {
+    p2.applyForce(dir.mult(forceValue));
+  }
 };
 
 new P5(sketch);

@@ -1,11 +1,27 @@
 import P5 from "p5";
 
 export interface IThing {}
-export type Color = "red" | "blue";
+export interface Color {
+  string: string;
+  index: number;
+}
+
+const RED: Color = {
+  string: "red",
+  index: 0,
+};
+
+const BLUE: Color = {
+  string: "blue",
+  index: 1,
+};
+
 export class Particle implements IThing {
-  private position: P5.Vector;
+  public position: P5.Vector;
+  public color: Color;
+
   private velocity: P5.Vector;
-  private color: Color;
+  private acceleration: P5.Vector;
 
   private diameter: number;
 
@@ -16,14 +32,16 @@ export class Particle implements IThing {
     const y = p5.random(p5.height);
     this.position = new P5.Vector().set(x, y);
     this.velocity = new P5.Vector().set(0, 0);
-    this.color = p5.random([0, 1]) === 0 ? "red" : "blue";
+    this.acceleration = new P5.Vector().set(0, 0);
+    this.color = p5.random([0, 1]) === 0 ? RED : BLUE;
     this.diameter = diameter;
     this.p5 = p5;
   }
 
   public tick() {
-    // this.velocity.add(acceleration); // TODO
+    this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
+    this.acceleration.set(0, 0);
     this.reflectOnBorders();
     // TODO: wrap too
   }
@@ -31,7 +49,7 @@ export class Particle implements IThing {
   public draw() {
     // body
     this.p5.noStroke();
-    this.p5.fill(this.color);
+    this.p5.fill(this.color.string);
     this.p5.circle(this.position.x, this.position.y, this.diameter);
 
     // eye
@@ -42,6 +60,10 @@ export class Particle implements IThing {
     );
     const eye = P5.Vector.add(longVel, this.position);
     this.p5.line(this.position.x, this.position.y, eye.x, eye.y);
+  }
+
+  public applyForce(acc: P5.Vector) {
+    this.acceleration = acc;
   }
 
   private reflectOnBorders() {
