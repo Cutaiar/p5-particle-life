@@ -1,7 +1,7 @@
 {
-  "name": "p5-cells",
+  "name": "p5-particle-life",
   "version": "1.0.0",
-  "description": "cell simulation in p5",
+  "description": "particle life implementation in p5",
   "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",

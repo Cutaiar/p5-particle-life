@@ -4,14 +4,14 @@ import "p5/lib/addons/p5.dom";
 import { Particle, createRandomParticles } from "./Particle";
 
 var sketch = (p: P5) => {
-  let cells: Particle[];
+  let particles: Particle[];
 
   p.setup = () => {
     console.log("🚀 - Setup initialized - P5 is running");
 
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    cells = createRandomParticles(p, 100);
+    particles = createRandomParticles(p, 100);
   };
 
   p.windowResized = () => {
@@ -21,8 +21,8 @@ var sketch = (p: P5) => {
   p.draw = () => {
     p.background(0);
 
-    updateArrays([cells], "tick");
-    updateArrays([cells], "draw");
+    updateArrays([particles], "tick");
+    updateArrays([particles], "draw");
   };
 };
 
