@@ -35,6 +35,7 @@ export class Particle implements IThing {
     this.p5.circle(this.position.x, this.position.y, this.diameter);
 
     // eye
+    this.p5.stroke(255);
     const longVel = P5.Vector.mult(
       this.velocity.copy().normalize(),
       this.diameter / 2
