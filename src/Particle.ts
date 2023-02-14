@@ -1,35 +1,37 @@
 import P5 from "p5";
 
 export interface IThing {}
-export class Cell implements IThing {
+export type Color = "red" | "blue";
+export class Particle implements IThing {
   private position: P5.Vector;
   private velocity: P5.Vector;
-  private diameter: number;
-  private visionDiameter: number;
-  private velocityScale = 0.1;
-  private p5: P5;
+  private color: Color;
 
-  private mind: IThing[];
+  private diameter: number;
+
+  private p5: P5;
 
   constructor(p5: P5, diameter: number) {
     const x = p5.random(p5.width);
     const y = p5.random(p5.height);
     this.position = new P5.Vector().set(x, y);
-    this.velocity = P5.Vector.random2D().mult(this.velocityScale);
+    this.velocity = new P5.Vector().set(0, 0);
+    this.color = p5.random([0, 1]) === 0 ? "red" : "blue";
     this.diameter = diameter;
-    this.visionDiameter = diameter + 20;
     this.p5 = p5;
   }
 
   public tick() {
+    // this.velocity.add(acceleration); // TODO
     this.position.add(this.velocity);
     this.reflectOnBorders();
+    // TODO: wrap too
   }
 
   public draw() {
     // body
-    this.p5.stroke(255);
-    this.p5.noFill();
+    this.p5.noStroke();
+    this.p5.fill(this.color);
     this.p5.circle(this.position.x, this.position.y, this.diameter);
 
     // eye
@@ -39,11 +41,6 @@ export class Cell implements IThing {
     );
     const eye = P5.Vector.add(longVel, this.position);
     this.p5.line(this.position.x, this.position.y, eye.x, eye.y);
-
-    //vision
-    this.p5.stroke("#338BA8");
-    this.p5.fill(173, 216, 230, 70);
-    this.p5.circle(this.position.x, this.position.y, this.visionDiameter);
   }
 
   private reflectOnBorders() {
@@ -57,10 +54,10 @@ export class Cell implements IThing {
   }
 }
 
-export const createRandomCells = (p5: P5, count: number) => {
-  let cells: Cell[] = [];
+export const createRandomParticles = (p5: P5, count: number) => {
+  let particles: Particle[] = [];
   for (let i = 0; i < count; i++) {
-    cells.push(new Cell(p5, 20));
+    particles.push(new Particle(p5, 20));
   }
-  return cells;
+  return particles;
 };
