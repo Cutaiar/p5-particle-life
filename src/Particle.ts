@@ -42,8 +42,8 @@ export class Particle implements IThing {
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
     this.acceleration.set(0, 0);
-    this.reflectOnBorders();
-    // TODO: wrap too
+    // this.reflectOnBorders();
+    this.wrapOnBorders();
   }
 
   public draw() {
@@ -75,12 +75,30 @@ export class Particle implements IThing {
       this.velocity.set(this.velocity.x, this.velocity.y * -1);
     }
   }
+
+  private wrapOnBorders() {
+    if (this.position.x < 0) {
+      this.position.set(this.p5.width, this.position.y);
+    }
+
+    if (this.position.x > this.p5.width) {
+      this.position.set(0, this.position.y);
+    }
+
+    if (this.position.y > this.p5.height) {
+      this.position.set(this.position.x, 0);
+    }
+
+    if (this.position.y < 0) {
+      this.position.set(this.position.x, this.p5.height);
+    }
+  }
 }
 
 export const createRandomParticles = (p5: P5, count: number) => {
   let particles: Particle[] = [];
   for (let i = 0; i < count; i++) {
-    particles.push(new Particle(p5, 20));
+    particles.push(new Particle(p5, 10));
   }
   return particles;
 };
