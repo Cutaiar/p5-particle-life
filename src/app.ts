@@ -11,7 +11,7 @@ var sketch = (p: P5) => {
 
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    particles = createRandomParticles(p, 100);
+    particles = createRandomParticles(p, 10);
   };
 
   p.windowResized = () => {
@@ -21,19 +21,23 @@ var sketch = (p: P5) => {
   p.draw = () => {
     p.background(0);
 
-    // Apply forces
-    particles.forEach((p) => {
-      particles.forEach((ip) => {
+    // Apply forces (very naive approach)
+    // TODO: use  Barnes-Hut or something similar
+    for (const p of particles) {
+      for (const ip of particles) {
         // skip self
-        if (p === ip) {
-          return;
+        if (p !== ip) {
+          force(p, ip);
+          force(ip, p);
+          p.tick();
+          ip.tick();
         }
-        force(p, ip);
-      });
-    });
+        p.draw();
+      }
+    }
 
-    updateArrays([particles], "tick");
-    updateArrays([particles], "draw");
+    // updateArrays([particles], "tick");
+    // updateArrays([particles], "draw");
   };
 };
 
@@ -53,13 +57,14 @@ const updateArrays = (array: any[][], func: string) => {
 // negative is attract, positive is repulse
 // Convention: "rows force on col"
 const attMatrix = [
-  [-0.01, 0.0],
-  [0.0, -0.01],
+  [0.0, -0.001],
+  [0.001, 0.0],
 ];
 
 const falloff = 50;
 
 // applies force of p1 on p2 (not p2 to p1)
+// TODO: universal repulsion
 const force = (p1: Particle, p2: Particle) => {
   const forceValue = attMatrix[p1.color.index][p2.color.index]; // p1s force on p2
 

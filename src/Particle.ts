@@ -63,7 +63,7 @@ export class Particle implements IThing {
   }
 
   public applyForce(acc: P5.Vector) {
-    this.acceleration = acc;
+    this.acceleration.add(acc);
   }
 
   private reflectOnBorders() {
