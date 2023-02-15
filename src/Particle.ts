@@ -16,6 +16,22 @@ const BLUE: Color = {
   index: 1,
 };
 
+const YELLOW: Color = {
+  string: "yellow",
+  index: 2,
+};
+
+const GREEN: Color = {
+  string: "green",
+  index: 3,
+};
+
+const COLORS = [RED, BLUE, YELLOW, GREEN];
+
+type BorderBehavior = "wrap" | "reflect";
+const drawEye = false;
+const borderBehavior: BorderBehavior = "reflect";
+
 export class Particle implements IThing {
   public position: P5.Vector;
   public color: Color;
@@ -33,7 +49,7 @@ export class Particle implements IThing {
     this.position = new P5.Vector().set(x, y);
     this.velocity = new P5.Vector().set(0, 0);
     this.acceleration = new P5.Vector().set(0, 0);
-    this.color = p5.random([0, 1]) === 0 ? RED : BLUE;
+    this.color = COLORS[p5.random([0, 1, 2, 3])];
     this.diameter = diameter;
     this.p5 = p5;
   }
@@ -42,8 +58,7 @@ export class Particle implements IThing {
     this.velocity.add(this.acceleration);
     this.position.add(this.velocity);
     this.acceleration.set(0, 0);
-    // this.reflectOnBorders();
-    this.wrapOnBorders();
+    borderBehavior === "wrap" ? this.wrap() : this.reflect();
   }
 
   public draw() {
@@ -53,20 +68,22 @@ export class Particle implements IThing {
     this.p5.circle(this.position.x, this.position.y, this.diameter);
 
     // eye
-    this.p5.stroke(255);
-    const longVel = P5.Vector.mult(
-      this.velocity.copy().normalize(),
-      this.diameter / 2
-    );
-    const eye = P5.Vector.add(longVel, this.position);
-    this.p5.line(this.position.x, this.position.y, eye.x, eye.y);
+    if (drawEye) {
+      this.p5.stroke(255);
+      const longVel = P5.Vector.mult(
+        this.velocity.copy().normalize(),
+        this.diameter / 2
+      );
+      const eye = P5.Vector.add(longVel, this.position);
+      this.p5.line(this.position.x, this.position.y, eye.x, eye.y);
+    }
   }
 
   public applyForce(acc: P5.Vector) {
     this.acceleration.add(acc);
   }
 
-  private reflectOnBorders() {
+  private reflect() {
     if (this.position.x >= this.p5.width || this.position.x <= 0) {
       this.velocity.set(this.velocity.x * -1, this.velocity.y);
     }
@@ -76,7 +93,7 @@ export class Particle implements IThing {
     }
   }
 
-  private wrapOnBorders() {
+  private wrap() {
     if (this.position.x < 0) {
       this.position.set(this.p5.width, this.position.y);
     }

@@ -11,7 +11,7 @@ var sketch = (p: P5) => {
 
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    particles = createRandomParticles(p, 10);
+    particles = createRandomParticles(p, 300);
   };
 
   p.windowResized = () => {
@@ -23,17 +23,19 @@ var sketch = (p: P5) => {
 
     // Apply forces (very naive approach)
     // TODO: use  Barnes-Hut or something similar
-    for (const p of particles) {
-      for (const ip of particles) {
-        // skip self
-        if (p !== ip) {
-          force(p, ip);
-          force(ip, p);
-          p.tick();
-          ip.tick();
+    for (let i = 0; i < particles.length; i++) {
+      const a = particles[i];
+      for (let j = i + 1; j < particles.length; j++) {
+        const b = particles[j];
+
+        if (a !== b) {
+          force(a, b);
+          force(b, a);
+          a.tick();
+          b.tick();
         }
-        p.draw();
       }
+      a.draw();
     }
 
     // updateArrays([particles], "tick");
@@ -49,33 +51,47 @@ const updateArrays = (array: any[][], func: string) => {
   });
 };
 
-//      | red | blue
-// -----------------
-// red  |  .    .
-// blue |  .    .
+//        | red | blue | yellow | green
+// ------------------------------------
+// red    |  .      .      .        .
+// blue   |  .      .      .        .
+// yellow |  .      .      .        .
+// green  |  .      .      .        .
 //
-// negative is attract, positive is repulse
+// positive is attract, negative is repulse
 // Convention: "rows force on col"
 const attMatrix = [
-  [0.0, -0.001],
-  [0.001, 0.0],
+  [0.2, -0.1, 0.3, -0.4],
+  [-0.1, 0.2, 0, 0],
+  [-0.1, 0.2, 0.6, 0],
+  [-0.1, 0.2, 0, -0.7],
 ];
 
-const falloff = 50;
-
 // applies force of p1 on p2 (not p2 to p1)
-// TODO: universal repulsion
 const force = (p1: Particle, p2: Particle) => {
-  const forceValue = attMatrix[p1.color.index][p2.color.index]; // p1s force on p2
+  const factor = attMatrix[p1.color.index][p2.color.index]; // p1s force on p2
 
-  const delta = P5.Vector.sub(p2.position, p1.position);
-  const dir = delta.normalize();
-  const distance = delta.mag();
+  const energy = 0.0001;
 
-  // apply force if particles are close enough
-  if (distance < falloff) {
-    p2.applyForce(dir.mult(forceValue));
-  }
+  const delta = P5.Vector.sub(p1.position, p2.position);
+
+  const f = getForce(factor, delta);
+  p2.applyForce(f.mult(energy));
+};
+
+// based off of https://particle-life.com/framework#matrix
+// Does not produce expected results. particles to not cluster
+const getForce = (factor: number, delta: P5.Vector) => {
+  const dist = delta.mag();
+  const rmin = 20;
+  const z = 1000; // compensate for my coordinates not being -1 to 1
+
+  const force =
+    dist < rmin
+      ? (dist / rmin - 1) * z
+      : factor * (1 - Math.abs(z + rmin - 2 * dist) / (z - rmin));
+
+  return delta.mult(force / dist);
 };
 
 new P5(sketch);
