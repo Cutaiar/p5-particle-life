@@ -5,6 +5,7 @@ Implementing particle life in processing to understand it better and potentially
 Inspiration from many amazing projects such as:
 
 https://github.com/tom-mohr/particle-life
+
 https://www.brainxyz.com/machine-learning/artificial-life/
 
 ## Current results
