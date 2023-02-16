@@ -32,6 +32,9 @@ type BorderBehavior = "wrap" | "reflect";
 const drawEye = false;
 const borderBehavior: BorderBehavior = "reflect";
 
+// apparently we need this so that there doesn't get to be too much energy in the system
+const dampeningFactor = 0.99;
+
 export class Particle implements IThing {
   public position: P5.Vector;
   public color: Color;
@@ -55,7 +58,7 @@ export class Particle implements IThing {
   }
 
   public tick() {
-    this.velocity.add(this.acceleration);
+    this.velocity.add(this.acceleration).mult(dampeningFactor);
     this.position.add(this.velocity);
     this.acceleration.set(0, 0);
     borderBehavior === "wrap" ? this.wrap() : this.reflect();
